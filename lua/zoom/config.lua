@@ -8,12 +8,15 @@ local defaults = {
 	-- TODO: Add option to automatically zoom on certain events (e.g., opening a file, switching buffers)
 	-- TODO: Add option to save zoom state per tab or window
 	-- TODO: Add option to customize zoom animation (e.g., duration, easing)
-	add_mappings = false,
 	mappings = {
-		---@type string[]
-		toggle = {
-			"<C-w>z",
-			-- "<leader>z",
+		enabled = false,
+		notify = false,
+		actions = {
+			---@type string[]|false
+			toggle = {
+				"<C-w>z",
+				-- "<leader>z",
+			},
 		},
 	},
 }
@@ -22,14 +25,37 @@ local defaults = {
 M.options = nil
 
 local function add_mappings()
-	if not M.options.add_mappings then
+	if not M.options.mappings.enabled then
 		return
 	end
 
-	for _, mapping in ipairs(M.options.mappings.toggle) do
-		vim.keymap.set("n", mapping, function()
-			require("zoom").toggle()
-		end, { noremap = true, silent = true, desc = "Zoom: Toggle zoom for current window" })
+	local keymaps = 0
+
+	for action_name, keys in pairs(M.options.mappings.actions) do
+        if keys == false then
+            goto continue
+        end
+
+		for _, key in ipairs(keys) do
+			vim.keymap.set("n", key, function()
+				local funcs = require("zoom.win")
+				local fn = funcs[action_name]
+
+				if fn then
+					fn()
+				else
+					vim.notify("Zoom: action '" .. action_name .. "' not found", vim.log.levels.ERROR)
+				end
+			end, { noremap = true, silent = true })
+
+			keymaps = keymaps + 1
+		end
+
+        ::continue::
+	end
+
+	if M.options.mappings.notify then
+		vim.notify("Zoom: " .. keymaps .. " key mappings enabled", vim.log.levels.INFO)
 	end
 end
 
