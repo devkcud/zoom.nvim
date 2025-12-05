@@ -1,5 +1,5 @@
 # zoom.nvim
 
-just zoom (ctrl-w z) for neovim
+just zoom for neovim
 
-> may or may not work with session managers
+> may not work with other plugins that mess with window sizes like `zen-mode.nvim`
