@@ -30,11 +30,14 @@ local function add_mappings()
 	end
 
 	local keymaps = 0
+	local descriptions = {
+		toggle = "Zoom: Toggle zoom for current window in both directions",
+	}
 
 	for action_name, keys in pairs(M.options.mappings.actions) do
-        if keys == false then
-            goto continue
-        end
+		if keys == false then
+			goto continue
+		end
 
 		for _, key in ipairs(keys) do
 			vim.keymap.set("n", key, function()
@@ -46,12 +49,12 @@ local function add_mappings()
 				else
 					vim.notify("Zoom: action '" .. action_name .. "' not found", vim.log.levels.ERROR)
 				end
-			end, { noremap = true, silent = true })
+			end, { noremap = true, silent = true, desc = descriptions[action_name] or ("Zoom: " .. action_name) })
 
 			keymaps = keymaps + 1
 		end
 
-        ::continue::
+		::continue::
 	end
 
 	if M.options.mappings.notify then
